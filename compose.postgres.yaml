@@ -1,0 +1,29 @@
+services:
+  app:
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  postgres:
+    image: postgres:18-alpine
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:${FORWARD_DB_PORT:-5433}:5432"
+    environment:
+      POSTGRES_DB: ${DB_DATABASE:-dashboard_monitor}
+      POSTGRES_USER: ${DB_USERNAME:-dashboard}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-dashboard_local}
+    volumes:
+      - postgres_data:/var/lib/postgresql
+      - ./docker/postgres/init-testing.sh:/docker-entrypoint-initdb.d/10-testing.sh:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U \"$$POSTGRES_USER\" -d \"$$POSTGRES_DB\""]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  postgres_data:

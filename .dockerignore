@@ -1,0 +1,11 @@
+.git
+.env
+.env.*
+vendor
+node_modules
+storage
+bootstrap/cache
+public/build
+.tools
+.postgres-recovery
+.postgres-admin.credential.xml
