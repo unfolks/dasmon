@@ -7,6 +7,166 @@ Konfigurasi default: aplikasi dan PostgreSQL berjalan langsung di PC Windows.
 `composer run dev` menjalankan FrankenPHP, Vite, dan worker antrean bersama.
 Docker tetap tersedia sebagai opsi.
 
+## Docker untuk server
+
+Gunakan `compose.production.yaml` sebagai file Compose mandiri. Konfigurasi ini
+menjalankan FrankenPHP PHP 8.5, worker antrean Laravel, dan PostgreSQL 18.
+Kode, dependency Composer production, dan aset frontend sudah masuk ke image;
+server hanya memerlukan Docker Engine dengan Docker Compose v2 atau lebih baru.
+PHP, Composer, dan Node.js tidak perlu dipasang langsung di server.
+
+Salin atau clone project ke server, lalu buat konfigurasi production:
+
+```bash
+cp .env.production.example .env.production
+```
+
+Pada PowerShell, gunakan `Copy-Item .env.production.example .env.production`.
+Isi `.env.production` sebelum menjalankan Compose:
+
+- `APP_URL`: alamat yang diakses pengguna, misalnya `http://192.168.1.10:8000`.
+- `APP_PORT`: port HTTP server, default `8000`.
+- `DB_PASSWORD`: password database yang kuat; wajib diisi.
+- `ZABBIX_URL`, `ZABBIX_TOKEN`, dan `ZBX_*`: gunakan konfigurasi Zabbix milik
+  server tujuan. Alamat Zabbix harus dapat dijangkau dari jaringan container;
+  `localhost` di dalam container mengarah ke container itu sendiri.
+
+Build image, kemudian buat application key:
+
+```bash
+docker compose --env-file .env.production -f compose.production.yaml build
+docker compose --env-file .env.production -f compose.production.yaml run --rm --no-deps --entrypoint php app artisan key:generate --show --no-interaction
+```
+
+Salin nilai `base64:...` hasil perintah ke `APP_KEY` di `.env.production`.
+Jika memindahkan instalasi beserta data lama, gunakan `APP_KEY` lama agar data
+terenkripsi tetap dapat dibaca. Simpan key tersebut untuk deployment berikutnya.
+File `.env.production` dikecualikan dari Git dan build image.
+
+Jalankan seluruh layanan:
+
+```bash
+docker compose --env-file .env.production -f compose.production.yaml up -d --wait
+docker compose --env-file .env.production -f compose.production.yaml ps -a
+```
+
+Buka `http://IP-SERVER:8000` atau port yang diatur di `APP_PORT`. Aplikasi
+menunggu database sehat dan migrasi selesai sebelum berjalan. Service
+`migrate` berstatus `Exited (0)` setelah berhasil; `app` dan `queue` tetap aktif.
+Konfigurasi default melayani HTTP. Jika memakai reverse proxy di server yang
+sama, atur `APP_BIND_ADDRESS=127.0.0.1`; terminasi HTTPS dan pengaturan trusted
+proxy Laravel perlu disesuaikan dengan server tujuan. Untuk Nginx Proxy Manager
+di Docker, gunakan langkah pada bagian berikut.
+
+PostgreSQL hanya dapat diakses dari jaringan internal Compose, tanpa port
+database yang dibuka ke host. Data database disimpan di volume `postgres_data`,
+sedangkan file aplikasi di `storage/app` disimpan di `app_storage`. Volume
+production terpisah dari Docker development. Migrasi menyiapkan struktur
+database baru; data PostgreSQL PC tidak otomatis ikut dipindahkan. Untuk
+membawa data lama, ekspor database PC menggunakan `pg_dump`, kemudian restore
+ke PostgreSQL Docker sebelum aplikasi mulai menerima pengguna.
+
+Melihat log dan menghentikan layanan tanpa menghapus data:
+
+```bash
+docker compose --env-file .env.production -f compose.production.yaml logs -f app queue migrate
+docker compose --env-file .env.production -f compose.production.yaml down
+```
+
+Setelah memperbarui kode, build dan jalankan ulang layanan agar web, worker,
+dan migrasi menggunakan image yang baru:
+
+```bash
+docker compose --env-file .env.production -f compose.production.yaml up -d --build --wait
+```
+
+Jangan gunakan `down -v` jika data masih diperlukan. Backup database dan
+volume `app_storage` secara berkala. Mengubah `DB_PASSWORD` di file env saja
+tidak mengganti password pada database yang sudah terinisialisasi.
+
+Konfigurasi image mengikuti [panduan production FrankenPHP](https://frankenphp.dev/docs/production/)
+dan [urutan startup Docker Compose](https://docs.docker.com/compose/how-tos/startup-order/).
+
+## VM Proxmox dengan Nginx Proxy Manager
+
+Untuk VM `app-host`, Nginx Proxy Manager sudah berjalan sebagai `proxy-npm-1`
+pada jaringan `proxy-net`, dengan IP container `172.18.0.3`. Dashboard dapat
+bergabung ke jaringan tersebut menggunakan `compose.proxy.yaml`. Hanya service
+web yang bergabung ke `proxy-net`; database, worker, dan migrasi memakai jaringan
+internal project. Database dashboard menggunakan PostgreSQL 18 dalam stack ini,
+terpisah dari PostgreSQL 15 milik aplikasi inventory.
+
+Alur akses: browser → Nginx Proxy Manager (HTTPS) → `dashboard-monitor:8080`
+(HTTP) → Laravel. Dalam mode ini dashboard tidak memublikasikan port ke VM,
+sehingga port `80`, `81`, dan `443` tetap digunakan NPM. NPM mengakses port
+internal container `8080`; angka tersebut dapat dipakai oleh beberapa container.
+
+Cek versi Compose dan jaringan yang tersedia:
+
+```bash
+docker compose version
+docker network inspect proxy-net
+```
+
+Gunakan Docker Compose 2.24.4 atau lebih baru untuk file override dengan
+`!reset`. Jaringan `proxy-net` menggunakan jaringan yang sudah ada di VM.
+
+Siapkan `.env.production`, password database, dan `APP_KEY` mengikuti bagian
+Docker untuk server. Kemudian sesuaikan pengaturan ini:
+
+```dotenv
+APP_URL=https://monitor.example.com
+PROXY_NETWORK=proxy-net
+TRUSTED_PROXIES=172.18.0.3
+SESSION_SECURE_COOKIE=true
+```
+
+Ganti `monitor.example.com` dengan domain dashboard yang akan dipakai. Arahkan
+DNS domain tersebut ke alamat VM yang dapat dijangkau pengguna. `APP_PORT` dan
+`APP_BIND_ADDRESS` tidak dipakai dalam mode proxy karena pemetaan port dihapus.
+`TRUSTED_PROXIES` diisi satu IP atau CIDR proxy; nilai ini digunakan oleh
+FrankenPHP dan Laravel agar header HTTPS serta IP pengguna dari NPM dikenali.
+Jika IP NPM berubah setelah container dibuat ulang, perbarui nilai tersebut
+dan jalankan ulang stack dashboard. IP NPM dapat diperiksa dengan:
+
+```bash
+docker inspect proxy-npm-1 --format '{{json .NetworkSettings.Networks}}'
+```
+
+Jalankan dari folder project dashboard di VM:
+
+```bash
+docker compose --env-file .env.production -f compose.production.yaml -f compose.proxy.yaml up -d --build --wait
+docker compose --env-file .env.production -f compose.production.yaml -f compose.proxy.yaml ps -a
+```
+
+Pada halaman admin NPM, tambahkan **Proxy Host**:
+
+| Pengaturan | Nilai |
+| --- | --- |
+| Domain Names | Domain dashboard, misalnya `monitor.example.com` |
+| Scheme | `http` |
+| Forward Hostname / IP | `dashboard-monitor` |
+| Forward Port | `8080` |
+| SSL Certificate | Sertifikat untuk domain dashboard |
+| Force SSL | Aktifkan setelah sertifikat valid tersedia |
+
+NPM dan dashboard berkomunikasi lewat alias Docker `dashboard-monitor` pada
+`proxy-net`. Gunakan alias tersebut sebagai tujuan proxy, bukan `localhost`
+atau IP container dashboard yang dapat berubah. Tidak perlu menambahkan
+`proxy_pass` manual pada tab Advanced NPM.
+
+Gunakan kedua file Compose untuk setiap update, melihat log, atau stop:
+
+```bash
+docker compose --env-file .env.production -f compose.production.yaml -f compose.proxy.yaml logs -f app queue migrate
+docker compose --env-file .env.production -f compose.production.yaml -f compose.proxy.yaml down
+```
+
+Jaringan eksternal `proxy-net` tetap tersedia saat stack dashboard dihentikan.
+Lihat [panduan jaringan Docker NPM](https://nginxproxymanager.com/advanced-config/#best-practice-use-a-docker-network)
+dan [konfigurasi trusted proxy FrankenPHP](https://frankenphp.dev/docs/production/#running-behind-a-reverse-proxy).
+
 ## Jalankan project
 
 PostgreSQL Windows harus aktif. Service di PC ini bernama `postgresql-x64-18`.
@@ -221,6 +381,9 @@ Hindari `down -v` jika ingin mempertahankan data PostgreSQL Docker.
 - `setup-frankenphp.ps1`: memasang runtime FrankenPHP Windows.
 - `compose.yaml`: opsi FrankenPHP Docker dengan database PC.
 - `compose.postgres.yaml`: opsi database Docker.
+- `compose.production.yaml`: aplikasi, worker, migrasi, dan database untuk server.
+- `compose.proxy.yaml`: integrasi web dengan jaringan Nginx Proxy Manager.
+- `.env.production.example`: contoh konfigurasi server.
 - `docker/frankenphp/Caddyfile`: document root `public/`.
 
 Referensi: [Laravel](https://laravel.com/docs/13.x),

@@ -2,9 +2,13 @@
     frankenphp
     auto_https off
     admin off
+    servers {
+        trusted_proxies static {$TRUSTED_PROXIES:127.0.0.1}
+        trusted_proxies_strict
+    }
 }
 
-:80 {
+:{$HTTP_PORT:80} {
     root * /app/public
     encode zstd br gzip
     php_server

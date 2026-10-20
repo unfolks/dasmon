@@ -1,0 +1,13 @@
+services:
+  app:
+    ports: !reset []
+    networks:
+      default:
+      proxy:
+        aliases:
+          - dashboard-monitor
+
+networks:
+  proxy:
+    external: true
+    name: ${PROXY_NETWORK:-proxy-net}

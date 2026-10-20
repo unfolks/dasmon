@@ -5,6 +5,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+      target: development
     restart: unless-stopped
     ports:
       - "127.0.0.1:${APP_PORT:-8000}:80"
