@@ -1,0 +1,236 @@
+zabbix_export:
+  version: '7.0'
+  host_groups:
+    - uuid: 121a728fbeeb494d8d7107a7831dffe2
+      name: 'Krian/CCTV 10.244'
+  hosts:
+    - host: 'Camera 1 10.120'
+      name: 'Teras'
+      templates:
+        - name: 'ICMP Ping'
+      groups:
+        - name: 'Krian/CCTV 10.244'
+      interfaces:
+        - ip: 192.168.10.120
+          interface_ref: if1
+      inventory_mode: DISABLED
+    - host: 'Camera 2 10.103'
+      name: 'Lorong Ante lt 1'
+      templates:
+        - name: 'ICMP Ping'
+      groups:
+        - name: 'Krian/CCTV 10.244'
+      interfaces:
+        - ip: 192.168.10.103
+          interface_ref: if1
+      inventory_mode: DISABLED
+    - host: 'Camera 3 10.108'
+      name: 'Main Hall lt 1'
+      templates:
+        - name: 'ICMP Ping'
+      groups:
+        - name: 'Krian/CCTV 10.244'
+      interfaces:
+        - ip: 192.168.10.108
+          interface_ref: if1
+      inventory_mode: DISABLED
+    - host: 'Camera 4 10.109'
+      name: 'Loby'
+      templates:
+        - name: 'ICMP Ping'
+      groups:
+        - name: 'Krian/CCTV 10.244'
+      interfaces:
+        - ip: 192.168.10.109
+          interface_ref: if1
+      inventory_mode: DISABLED
+    - host: 'Camera 5 10.106'
+      name: 'Ruang Baterai lt 1'
+      templates:
+        - name: 'ICMP Ping'
+      groups:
+        - name: 'Krian/CCTV 10.244'
+      interfaces:
+        - ip: 192.168.10.106
+          interface_ref: if1
+      inventory_mode: DISABLED
+    - host: 'Camera 7 10.104'
+      name: 'Gudang Tali lt 1'
+      templates:
+        - name: 'ICMP Ping'
+      groups:
+        - name: 'Krian/CCTV 10.244'
+      interfaces:
+        - ip: 192.168.10.104
+          interface_ref: if1
+      inventory_mode: DISABLED
+    - host: 'Camera 8 10.107'
+      name: 'Lorong Masuk Office lt 1'
+      templates:
+        - name: 'ICMP Ping'
+      groups:
+        - name: 'Krian/CCTV 10.244'
+      interfaces:
+        - ip: 192.168.10.107
+          interface_ref: if1
+      inventory_mode: DISABLED
+    - host: 'Camera 9 10.105'
+      name: 'Toilet 1 lt 1'
+      templates:
+        - name: 'ICMP Ping'
+      groups:
+        - name: 'Krian/CCTV 10.244'
+      interfaces:
+        - ip: 192.168.10.105
+          interface_ref: if1
+      inventory_mode: DISABLED
+    - host: 'Camera 10 10.90'
+      name: 'Operasional lt 1'
+      templates:
+        - name: 'ICMP Ping'
+      groups:
+        - name: 'Krian/CCTV 10.244'
+      interfaces:
+        - ip: 192.168.10.90
+          interface_ref: if1
+      inventory_mode: DISABLED
+    - host: 'Camera 11 10.87'
+      name: 'Pantry lt 1'
+      templates:
+        - name: 'ICMP Ping'
+      groups:
+        - name: 'Krian/CCTV 10.244'
+      interfaces:
+        - ip: 192.168.10.87
+          interface_ref: if1
+      inventory_mode: DISABLED
+    - host: 'Camera 12 10.89'
+      name: 'Steril Room'
+      templates:
+        - name: 'ICMP Ping'
+      groups:
+        - name: 'Krian/CCTV 10.244'
+      interfaces:
+        - ip: 192.168.10.89
+          interface_ref: if1
+      inventory_mode: DISABLED
+    - host: 'Camera 13 10.75'
+      name: 'Meeting Room 4 lt 2'
+      templates:
+        - name: 'ICMP Ping'
+      groups:
+        - name: 'Krian/CCTV 10.244'
+      interfaces:
+        - ip: 192.168.10.75
+          interface_ref: if1
+      inventory_mode: DISABLED
+    - host: 'Camera 14 10.82'
+      name: 'Main Hall lt 1.2'
+      templates:
+        - name: 'ICMP Ping'
+      groups:
+        - name: 'Krian/CCTV 10.244'
+      interfaces:
+        - ip: 192.168.10.82
+          interface_ref: if1
+      inventory_mode: DISABLED
+    - host: 'Camera 15 10.76'
+      name: 'Training Room lt 2'
+      templates:
+        - name: 'ICMP Ping'
+      groups:
+        - name: 'Krian/CCTV 10.244'
+      interfaces:
+        - ip: 192.168.10.76
+          interface_ref: if1
+      inventory_mode: DISABLED
+    - host: 'Camera 16 10.77'
+      name: 'Koridor lt 2'
+      templates:
+        - name: 'ICMP Ping'
+      groups:
+        - name: 'Krian/CCTV 10.244'
+      interfaces:
+        - ip: 192.168.10.77
+          interface_ref: if1
+      inventory_mode: DISABLED
+    - host: 'Camera 17 10.78'
+      name: 'Meeting Room 3 lt 2'
+      templates:
+        - name: 'ICMP Ping'
+      groups:
+        - name: 'Krian/CCTV 10.244'
+      interfaces:
+        - ip: 192.168.10.78
+          interface_ref: if1
+      inventory_mode: DISABLED
+    - host: 'Camera 18 10.85'
+      name: 'Meeting Room VIP lt 2'
+      templates:
+        - name: 'ICMP Ping'
+      groups:
+        - name: 'Krian/CCTV 10.244'
+      interfaces:
+        - ip: 192.168.10.85
+          interface_ref: if1
+      inventory_mode: DISABLED
+    - host: 'Camera 19 10.79'
+      name: 'IT Room lt 2'
+      templates:
+        - name: 'ICMP Ping'
+      groups:
+        - name: 'Krian/CCTV 10.244'
+      interfaces:
+        - ip: 192.168.10.79
+          interface_ref: if1
+      inventory_mode: DISABLED
+    - host: 'Camera 20 10.80'
+      name: 'HR Recruit Room lt 2'
+      templates:
+        - name: 'ICMP Ping'
+      groups:
+        - name: 'Krian/CCTV 10.244'
+      interfaces:
+        - ip: 192.168.10.80
+          interface_ref: if1
+      inventory_mode: DISABLED
+    - host: 'Camera 21 10.86'
+      name: 'HR OD lt 2'
+      templates:
+        - name: 'ICMP Ping'
+      groups:
+        - name: 'Krian/CCTV 10.244'
+      interfaces:
+        - ip: 192.168.10.86
+          interface_ref: if1
+      inventory_mode: DISABLED
+    - host: 'Camera 22 10.81'
+      name: 'R Admin lt 2'
+      templates:
+        - name: 'ICMP Ping'
+      groups:
+        - name: 'Krian/CCTV 10.244'
+      interfaces:
+        - ip: 192.168.10.81
+          interface_ref: if1
+      inventory_mode: DISABLED
+    - host: 'Camera 23 10.83'
+      name: 'Koridor 2 lt 2'
+      templates:
+        - name: 'ICMP Ping'
+      groups:
+        - name: 'Krian/CCTV 10.244'
+      interfaces:
+        - ip: 192.168.10.83
+          interface_ref: if1
+      inventory_mode: DISABLED
+    - host: 'Camera 24 10.84'
+      name: 'Tangga lt 2'
+      templates:
+        - name: 'ICMP Ping'
+      groups:
+        - name: 'Krian/CCTV 10.244'
+      interfaces:
+        - ip: 192.168.10.84
+          interface_ref: if1
+      inventory_mode: DISABLED

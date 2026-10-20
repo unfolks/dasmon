@@ -1,0 +1,774 @@
+zabbix_export:
+  version: '7.0'
+  template_groups:
+    -
+      uuid: 70ef7ffefaf44ff4b49baf3475625e01
+      name: 'Video cameras'
+  templates:
+    -
+      uuid: 7159126b467d4b9db1ecacbdcade9c2f
+      template: 'Dahua Video Camera'
+      name: 'Dahua Switch by SNMP'
+      description: |
+        Switch extension for Zabbix 7.0, based on Bruno BASLI's Dahua Video Camera template
+        and DAHUA-SNMP-MIB 2014-01-07. The technical template name and original UUIDs/keys
+        are preserved so importing can update the existing template and retain item history.
+
+        Keep Network Generic Device by SNMP for ICMP and generic system monitoring.
+        New keys use dahua.switch.* and do not redefine net.if.discovery or cctv.ports.*.
+
+        IF-MIB discovery does not require ifAlias, ifName, or ifXTable. One current table
+        snapshot supplies interface status and consistent port totals. Ethernet ifTypes
+        6, 62, 69 and 117 are included, including uplinks; these are not camera counts.
+        Empty/incomplete identity tables fail preprocessing instead of reporting zero ports.
+        Unknown, testing, dormant, absent and lower-layer-down statuses are counted separately.
+
+        Optional IF-MIB/ifXTable items provide port speed, Counter64 traffic, errors and discards.
+        Unsupported optional OIDs remain unsupported and do not stop base interface discovery.
+        POWER-ETHERNET-MIB discovery provides PoE state, class, fault counters and per-PSE
+        power budget/consumption only where implemented by the device. PoE indexes are
+        group.port, not IF-MIB ifIndex; no port-to-camera or PoE-to-interface mapping is assumed.
+        Per-port actual wattage, temperature and memory need model-specific verified OIDs.
+
+        Import with Update existing and Create new enabled; leave Delete missing unchecked.
+        This updates every host using this template, including cameras if it is linked there.
+        Inspect Latest data, preprocessing errors, and discovery after import. Configure
+        {$DAHUA.PORT.ALERT:"ifIndex"}=1 only for ports whose link-down alerts are required.
+        Test unsupported OIDs against the device MIB/CLI before using their values.
+      groups:
+        -
+          name: 'Video cameras'
+      items:
+        -
+          uuid: 8ef77937b774416b847e75f09d9845b9
+          name: 'Dahua - CPU Usage'
+          type: SNMP_AGENT
+          snmp_oid: 1.3.6.1.4.1.1004849.2.1.3.0
+          key: cpuUsage.0
+          delay: 30s
+          value_type: FLOAT
+          units: '%'
+          description: 'Vendor CPU OID; compare with the device UI/CLI before relying on its interpretation.'
+          preprocessing:
+            - type: IN_RANGE
+              parameters:
+                - '0'
+                - '100'
+          triggers:
+            - uuid: d4a00000000040008000000000000001
+              expression: 'min(/Dahua Video Camera/cpuUsage.0,5m)>{$DAHUA.CPU.WARN}'
+              name: 'Dahua switch: High reported CPU usage'
+              priority: WARNING
+          tags:
+            -
+              tag: Application
+              value: CPU
+        -
+          uuid: 7b9ecfca1da5475993f26d9c9cf772ca
+          name: 'Dahua - Device CLASS'
+          type: SNMP_AGENT
+          snmp_oid: .1.3.6.1.4.1.1004849.2.1.2.7.0
+          key: deviceClass.0
+          delay: 8h
+          trends: '0'
+          value_type: TEXT
+          tags:
+            -
+              tag: Application
+              value: General
+        -
+          uuid: 1944b14cad3b44e6bc2940da56ba5d79
+          name: 'Dahua - Device TYPE'
+          type: SNMP_AGENT
+          snmp_oid: .1.3.6.1.4.1.1004849.2.1.2.6.0
+          key: deviceType.0
+          delay: 8h
+          trends: '0'
+          value_type: TEXT
+          tags:
+            -
+              tag: Application
+              value: General
+        -
+          uuid: c2760bc29eea47b2b20e36a857819b3b
+          name: 'Dahua - IP Adress'
+          type: SNMP_AGENT
+          snmp_oid: .1.3.6.1.4.1.1004849.2.2.2.8.0
+          key: ipAddr.0
+          delay: 8h
+          trends: '0'
+          value_type: TEXT
+          tags:
+            -
+              tag: Application
+              value: General
+        -
+          uuid: e763b00f85c7418ea4532b0634ad05b3
+          name: 'Dahua - MAC Adress'
+          type: SNMP_AGENT
+          snmp_oid: .1.3.6.1.4.1.1004849.2.2.2.2.0
+          key: macAddr.0
+          delay: 8h
+          trends: '0'
+          value_type: TEXT
+          tags:
+            -
+              tag: Application
+              value: General
+        -
+          uuid: 53f599c907804aefb6c1d6c27157976d
+          name: 'Dahua - Machine NAME'
+          type: SNMP_AGENT
+          snmp_oid: .1.3.6.1.4.1.1004849.2.1.2.9.0
+          key: machineName.0
+          delay: 8h
+          trends: '0'
+          value_type: TEXT
+          tags:
+            -
+              tag: Application
+              value: General
+        -
+          uuid: 29d34edc176b4b2888a9b9c03bd7d867
+          name: 'Dahua - Serial NUMBER'
+          type: SNMP_AGENT
+          snmp_oid: .1.3.6.1.4.1.1004849.2.1.2.4.0
+          key: serialNumber.0
+          delay: 8h
+          trends: '0'
+          value_type: TEXT
+          tags:
+            -
+              tag: Application
+              value: General
+        -
+          uuid: d8c30c53c0b44b5d8a4345fe7f3398c0
+          name: 'SNMP management uptime'
+          type: SNMP_AGENT
+          snmp_oid: 1.3.6.1.2.1.1.3.0
+          key: 'systeme.uptime[sysUpTime]'
+          delay: 1m
+          history: 2w
+          trends: '0'
+          units: uptime
+          description: |
+            MIB: SNMPv2-MIB
+            The time (in hundredths of a second) since the network management portion of the system was last re-initialized.
+          preprocessing:
+            -
+              type: MULTIPLIER
+              parameters:
+                - '0.01'
+          tags:
+            -
+              tag: Application
+              value: General
+        -
+          uuid: 234f1e2ec9f94e24aa8997870cf42b5a
+          name: 'Dahua - System VERSION'
+          type: SNMP_AGENT
+          snmp_oid: .1.3.6.1.4.1.1004849.2.1.2.5.0
+          key: systemVersion.0
+          delay: 8h
+          trends: '0'
+          value_type: TEXT
+          tags:
+            -
+              tag: Application
+              value: General
+        - uuid: d4a00000000040008000000000000002
+          name: 'Dahua switch: Interface snapshot'
+          type: SNMP_AGENT
+          snmp_oid: 'walk[1.3.6.1.2.1.2.2.1.2,1.3.6.1.2.1.2.2.1.3,1.3.6.1.2.1.2.2.1.7,1.3.6.1.2.1.2.2.1.8]'
+          key: dahua.switch.interfaces
+          delay: 1m
+          history: 1d
+          trends: '0'
+          value_type: TEXT
+          description: |
+            IF-MIB snapshot independent of ifAlias/ifName and optional ifXTable support.
+            Ethernet interfaces include uplinks. Missing operational/admin states become 0 (no data).
+            An absent, malformed or empty Ethernet identity table is an error, never a zero total.
+            Dependent totals and statuses share this snapshot; check its lastclock and state.
+          preprocessing:
+            - type: SNMP_WALK_TO_JSON
+              parameters:
+                - ifDescr
+                - 1.3.6.1.2.1.2.2.1.2
+                - '0'
+                - ifType
+                - 1.3.6.1.2.1.2.2.1.3
+                - '0'
+                - ifAdminStatus
+                - 1.3.6.1.2.1.2.2.1.7
+                - '0'
+                - ifOperStatus
+                - 1.3.6.1.2.1.2.2.1.8
+                - '0'
+            - type: JAVASCRIPT
+              parameters:
+                - |
+                  var rows = JSON.parse(value);
+                  if (!Array.isArray(rows) || rows.length === 0) {
+                      throw 'IF-MIB returned no interface rows; verify SNMP access and OID support.';
+                  }
+                  var interfaces = [];
+                  var seen = {};
+                  var ethernetTypes = {'6': true, '62': true, '69': true, '117': true};
+                  var ports = {total: 0, up: 0, down: 0, unknown: 0};
+                  for (var i = 0; i < rows.length; i++) {
+                      var row = rows[i];
+                      if (!row || typeof row !== 'object' || Array.isArray(row)) {
+                          throw 'IF-MIB returned an invalid interface row.';
+                      }
+                      var index = String(row['{#SNMPINDEX}'] || '');
+                      var type = String(row.ifType || '');
+                      if (!/^[1-9][0-9]*$/.test(index) || !/^[1-9][0-9]*$/.test(type) || seen[index]) {
+                          throw 'IF-MIB returned an incomplete identity table or duplicate ifIndex.';
+                      }
+                      seen[index] = true;
+                      if (!ethernetTypes[type]) {
+                          continue;
+                      }
+                      if (typeof row.ifDescr !== 'string' || row.ifDescr.replace(/^\s+|\s+$/g, '') === '') {
+                          throw 'Ethernet interface ' + index + ' has no ifDescr.';
+                      }
+                      var oper = /^[1-7]$/.test(String(row.ifOperStatus)) ? Number(row.ifOperStatus) : 0;
+                      var admin = /^[1-3]$/.test(String(row.ifAdminStatus)) ? Number(row.ifAdminStatus) : 0;
+                      interfaces.push({
+                          index: index,
+                          description: row.ifDescr,
+                          operStatus: oper,
+                          adminStatus: admin
+                      });
+                      ports.total++;
+                      if (oper === 1) {
+                          ports.up++;
+                      } else if (oper === 2) {
+                          ports.down++;
+                      } else {
+                          ports.unknown++;
+                      }
+                  }
+                  if (ports.total === 0) {
+                      throw 'No Ethernet ifTypes 6, 62, 69 or 117 were returned; verify the device IF-MIB.';
+                  }
+                  return JSON.stringify({ports: ports, interfaces: interfaces});
+          tags:
+            - tag: Application
+              value: Interfaces
+          triggers:
+            - uuid: d4a00000000040008000000000000003
+              expression: 'nodata(/Dahua Video Camera/dahua.switch.interfaces,10m)=1'
+              name: 'Dahua switch: No current interface snapshot'
+              priority: WARNING
+              description: 'The IF-MIB snapshot has not produced a valid value for 10 minutes. Do not interpret old port counts as current data.'
+        - uuid: d4a00000000040008000000000000004
+          name: 'Dahua switch: Ethernet ports total'
+          type: DEPENDENT
+          key: dahua.switch.ports.total
+          delay: '0'
+          description: 'Discovered Ethernet interfaces, including uplinks. This is not the number of cameras or PoE ports.'
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.ports.total
+          master_item:
+            key: dahua.switch.interfaces
+          tags:
+            - tag: Application
+              value: Interfaces
+        - uuid: d4a00000000040008000000000000005
+          name: 'Dahua switch: Ethernet ports up'
+          type: DEPENDENT
+          key: dahua.switch.ports.up
+          delay: '0'
+          description: 'Interfaces with ifOperStatus up(1) in the current snapshot.'
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.ports.up
+          master_item:
+            key: dahua.switch.interfaces
+          tags:
+            - tag: Application
+              value: Interfaces
+        - uuid: d4a00000000040008000000000000006
+          name: 'Dahua switch: Ethernet ports down'
+          type: DEPENDENT
+          key: dahua.switch.ports.down
+          delay: '0'
+          description: 'Interfaces with ifOperStatus down(2), including unused or administratively disabled ports. Not a camera-offline count.'
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.ports.down
+          master_item:
+            key: dahua.switch.interfaces
+          tags:
+            - tag: Application
+              value: Interfaces
+        - uuid: d4a00000000040008000000000000007
+          name: 'Dahua switch: Ethernet ports other or unknown'
+          type: DEPENDENT
+          key: dahua.switch.ports.unknown
+          delay: '0'
+          description: 'Missing/invalid status, testing(3), unknown(4), dormant(5), notPresent(6) or lowerLayerDown(7). Total = up + down + unknown.'
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.ports.unknown
+          master_item:
+            key: dahua.switch.interfaces
+          tags:
+            - tag: Application
+              value: Interfaces
+      discovery_rules:
+        - uuid: d4a00000000040008000000000000008
+          name: 'Dahua switch: Ethernet interface discovery'
+          type: DEPENDENT
+          key: dahua.switch.interfaces.discovery
+          delay: '0'
+          lifetime: 7d
+          description: 'Discover all Ethernet rows from the validated snapshot; no ifAlias, ifName or admin-up filter is required.'
+          master_item:
+            key: dahua.switch.interfaces
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.interfaces
+          lld_macro_paths:
+            - lld_macro: '{#IFINDEX}'
+              path: $.index
+            - lld_macro: '{#IFDESCR}'
+              path: $.description
+          item_prototypes:
+            - uuid: d4a00000000040008000000000000009
+              name: 'Dahua interface {#IFDESCR}: Operational status'
+              type: DEPENDENT
+              key: 'dahua.switch.port.oper_status[{#IFINDEX}]'
+              delay: '0'
+              master_item:
+                key: dahua.switch.interfaces
+              preprocessing:
+                - type: JSONPATH
+                  parameters:
+                    - '$.interfaces[?(@.index == "{#IFINDEX}")].operStatus.first()'
+              valuemap:
+                name: 'Dahua switch interface operational status'
+              tags:
+                - tag: Application
+                  value: Interfaces
+              trigger_prototypes:
+                - uuid: d4a0000000004000800000000000000a
+                  expression: '{$DAHUA.PORT.ALERT:"{#IFINDEX}"}=1 and count(/Dahua Video Camera/dahua.switch.port.oper_status[{#IFINDEX}],#3,"eq",2)=3 and last(/Dahua Video Camera/dahua.switch.port.admin_status[{#IFINDEX}])=1'
+                  name: 'Dahua interface {#IFDESCR}: Enabled port link is down'
+                  priority: WARNING
+                  description: 'Opt-in per ifIndex. Set host macro {$DAHUA.PORT.ALERT:"{#IFINDEX}"} to 1 only for expected active links; default 0 avoids unused-port alerts.'
+            - uuid: d4a0000000004000800000000000000b
+              name: 'Dahua interface {#IFDESCR}: Administrative status'
+              type: DEPENDENT
+              key: 'dahua.switch.port.admin_status[{#IFINDEX}]'
+              delay: '0'
+              master_item:
+                key: dahua.switch.interfaces
+              preprocessing:
+                - type: JSONPATH
+                  parameters:
+                    - '$.interfaces[?(@.index == "{#IFINDEX}")].adminStatus.first()'
+              valuemap:
+                name: 'Dahua switch interface administrative status'
+              tags:
+                - tag: Application
+                  value: Interfaces
+            - uuid: d4a0000000004000800000000000000c
+              name: 'Dahua interface {#IFDESCR}: Speed'
+              type: SNMP_AGENT
+              snmp_oid: '1.3.6.1.2.1.31.1.1.1.15.{#IFINDEX}'
+              key: 'dahua.switch.port.speed[{#IFINDEX}]'
+              delay: 5m
+              units: bps
+              description: 'Optional ifXTable::ifHighSpeed, reported in Mbit/s and converted to bit/s. Unsupported OIDs are not converted to zero.'
+              preprocessing:
+                - type: MULTIPLIER
+                  parameters:
+                    - '1000000'
+              tags:
+                - tag: Application
+                  value: Interfaces
+            - uuid: d4a0000000004000800000000000000d
+              name: 'Dahua interface {#IFDESCR}: Incoming traffic'
+              type: SNMP_AGENT
+              snmp_oid: '1.3.6.1.2.1.31.1.1.1.6.{#IFINDEX}'
+              key: 'dahua.switch.port.in[{#IFINDEX}]'
+              delay: 1m
+              value_type: FLOAT
+              units: bps
+              description: 'Optional ifHCInOctets (Counter64). No Counter32 fallback, to avoid counter-wrap errors on fast ports.'
+              preprocessing:
+                - type: CHANGE_PER_SECOND
+                - type: MULTIPLIER
+                  parameters:
+                    - '8'
+              tags:
+                - tag: Application
+                  value: Interfaces
+            - uuid: d4a0000000004000800000000000000e
+              name: 'Dahua interface {#IFDESCR}: Outgoing traffic'
+              type: SNMP_AGENT
+              snmp_oid: '1.3.6.1.2.1.31.1.1.1.10.{#IFINDEX}'
+              key: 'dahua.switch.port.out[{#IFINDEX}]'
+              delay: 1m
+              value_type: FLOAT
+              units: bps
+              description: 'Optional ifHCOutOctets (Counter64); the first poll establishes the baseline.'
+              preprocessing:
+                - type: CHANGE_PER_SECOND
+                - type: MULTIPLIER
+                  parameters:
+                    - '8'
+              tags:
+                - tag: Application
+                  value: Interfaces
+            - uuid: d4a0000000004000800000000000000f
+              name: 'Dahua interface {#IFDESCR}: Incoming errors'
+              type: SNMP_AGENT
+              snmp_oid: '1.3.6.1.2.1.2.2.1.14.{#IFINDEX}'
+              key: 'dahua.switch.port.in_errors[{#IFINDEX}]'
+              delay: 1m
+              value_type: FLOAT
+              units: errors/s
+              preprocessing:
+                - type: CHANGE_PER_SECOND
+              tags:
+                - tag: Application
+                  value: Interfaces
+            - uuid: d4a00000000040008000000000000010
+              name: 'Dahua interface {#IFDESCR}: Outgoing errors'
+              type: SNMP_AGENT
+              snmp_oid: '1.3.6.1.2.1.2.2.1.20.{#IFINDEX}'
+              key: 'dahua.switch.port.out_errors[{#IFINDEX}]'
+              delay: 1m
+              value_type: FLOAT
+              units: errors/s
+              preprocessing:
+                - type: CHANGE_PER_SECOND
+              tags:
+                - tag: Application
+                  value: Interfaces
+            - uuid: d4a00000000040008000000000000011
+              name: 'Dahua interface {#IFDESCR}: Incoming discards'
+              type: SNMP_AGENT
+              snmp_oid: '1.3.6.1.2.1.2.2.1.13.{#IFINDEX}'
+              key: 'dahua.switch.port.in_discards[{#IFINDEX}]'
+              delay: 1m
+              value_type: FLOAT
+              units: packets/s
+              preprocessing:
+                - type: CHANGE_PER_SECOND
+              tags:
+                - tag: Application
+                  value: Interfaces
+            - uuid: d4a00000000040008000000000000012
+              name: 'Dahua interface {#IFDESCR}: Outgoing discards'
+              type: SNMP_AGENT
+              snmp_oid: '1.3.6.1.2.1.2.2.1.19.{#IFINDEX}'
+              key: 'dahua.switch.port.out_discards[{#IFINDEX}]'
+              delay: 1m
+              value_type: FLOAT
+              units: packets/s
+              preprocessing:
+                - type: CHANGE_PER_SECOND
+              tags:
+                - tag: Application
+                  value: Interfaces
+          graph_prototypes:
+            - uuid: d4a00000000040008000000000000013
+              name: 'Dahua interface {#IFDESCR}: Traffic'
+              graph_items:
+                - color: 199C0D
+                  item:
+                    host: 'Dahua Video Camera'
+                    key: 'dahua.switch.port.in[{#IFINDEX}]'
+                - color: F63100
+                  item:
+                    host: 'Dahua Video Camera'
+                    key: 'dahua.switch.port.out[{#IFINDEX}]'
+        - uuid: d4a00000000040008000000000000014
+          name: 'Dahua switch: PoE port discovery (optional)'
+          type: SNMP_AGENT
+          snmp_oid: 'discovery[{#POEADMIN},1.3.6.1.2.1.105.1.1.1.3]'
+          key: dahua.switch.poe.discovery
+          delay: 1h
+          lifetime: 7d
+          description: |
+            Optional POWER-ETHERNET-MIB. SNMPINDEX is the full group.port suffix, such as 1.24.
+            It is not an IF-MIB ifIndex and must not be mapped to a camera without verification.
+            An unsupported or empty table creates no PoE items; no PoE data is fabricated.
+          item_prototypes:
+            - uuid: d4a00000000040008000000000000015
+              name: 'Dahua PoE port {#SNMPINDEX}: Administrative enable'
+              type: SNMP_AGENT
+              snmp_oid: '1.3.6.1.2.1.105.1.1.1.3.{#SNMPINDEX}'
+              key: 'dahua.switch.poe.admin[{#SNMPINDEX}]'
+              delay: 1m
+              valuemap:
+                name: 'Dahua switch PoE admin enable'
+              tags:
+                - tag: Application
+                  value: PoE
+            - uuid: d4a00000000040008000000000000016
+              name: 'Dahua PoE port {#SNMPINDEX}: Detection status'
+              type: SNMP_AGENT
+              snmp_oid: '1.3.6.1.2.1.105.1.1.1.6.{#SNMPINDEX}'
+              key: 'dahua.switch.poe.status[{#SNMPINDEX}]'
+              delay: 1m
+              preprocessing:
+                - type: IN_RANGE
+                  parameters:
+                    - '1'
+                    - '6'
+              valuemap:
+                name: 'Dahua switch PoE detection status'
+              tags:
+                - tag: Application
+                  value: PoE
+              trigger_prototypes:
+                - uuid: d4a00000000040008000000000000017
+                  expression: 'count(/Dahua Video Camera/dahua.switch.poe.status[{#SNMPINDEX}],#3,"eq",4)+count(/Dahua Video Camera/dahua.switch.poe.status[{#SNMPINDEX}],#3,"eq",6)=3'
+                  name: 'Dahua PoE port {#SNMPINDEX}: Persistent power fault'
+                  priority: WARNING
+            - uuid: d4a00000000040008000000000000018
+              name: 'Dahua PoE port {#SNMPINDEX}: Power priority'
+              type: SNMP_AGENT
+              snmp_oid: '1.3.6.1.2.1.105.1.1.1.7.{#SNMPINDEX}'
+              key: 'dahua.switch.poe.priority[{#SNMPINDEX}]'
+              delay: 1h
+              valuemap:
+                name: 'Dahua switch PoE priority'
+              tags:
+                - tag: Application
+                  value: PoE
+            - uuid: d4a00000000040008000000000000019
+              name: 'Dahua PoE port {#SNMPINDEX}: Power class'
+              type: SNMP_AGENT
+              snmp_oid: '1.3.6.1.2.1.105.1.1.1.10.{#SNMPINDEX}'
+              key: 'dahua.switch.poe.class[{#SNMPINDEX}]'
+              delay: 5m
+              description: 'Reported power classification; not measured per-port wattage. Valid while the port is delivering power.'
+              valuemap:
+                name: 'Dahua switch PoE class'
+              tags:
+                - tag: Application
+                  value: PoE
+            - uuid: d4a0000000004000800000000000001a
+              name: 'Dahua PoE port {#SNMPINDEX}: Power denied counter'
+              type: SNMP_AGENT
+              snmp_oid: '1.3.6.1.2.1.105.1.1.1.12.{#SNMPINDEX}'
+              key: 'dahua.switch.poe.denied[{#SNMPINDEX}]'
+              delay: 1m
+              description: 'Raw cumulative counter; not the current number of failed devices.'
+              tags:
+                - tag: Application
+                  value: PoE
+            - uuid: d4a0000000004000800000000000001b
+              name: 'Dahua PoE port {#SNMPINDEX}: Overload counter'
+              type: SNMP_AGENT
+              snmp_oid: '1.3.6.1.2.1.105.1.1.1.13.{#SNMPINDEX}'
+              key: 'dahua.switch.poe.overload[{#SNMPINDEX}]'
+              delay: 1m
+              tags:
+                - tag: Application
+                  value: PoE
+            - uuid: d4a0000000004000800000000000001c
+              name: 'Dahua PoE port {#SNMPINDEX}: Short circuit counter'
+              type: SNMP_AGENT
+              snmp_oid: '1.3.6.1.2.1.105.1.1.1.14.{#SNMPINDEX}'
+              key: 'dahua.switch.poe.short[{#SNMPINDEX}]'
+              delay: 1m
+              tags:
+                - tag: Application
+                  value: PoE
+        - uuid: d4a0000000004000800000000000001d
+          name: 'Dahua switch: PoE power supply discovery (optional)'
+          type: SNMP_AGENT
+          snmp_oid: 'discovery[{#PSEPOWER},1.3.6.1.2.1.105.1.3.1.1.2]'
+          key: dahua.switch.poe.pse.discovery
+          delay: 1h
+          lifetime: 7d
+          description: 'Optional POWER-ETHERNET-MIB main PSE groups; each group can supply several ports.'
+          item_prototypes:
+            - uuid: d4a0000000004000800000000000001e
+              name: 'Dahua PoE supply {#SNMPINDEX}: Power budget'
+              type: SNMP_AGENT
+              snmp_oid: '1.3.6.1.2.1.105.1.3.1.1.2.{#SNMPINDEX}'
+              key: 'dahua.switch.poe.budget[{#SNMPINDEX}]'
+              delay: 1h
+              units: W
+              preprocessing:
+                - type: IN_RANGE
+                  parameters:
+                    - '1'
+                    - '65535'
+              tags:
+                - tag: Application
+                  value: PoE
+            - uuid: d4a0000000004000800000000000001f
+              name: 'Dahua PoE supply {#SNMPINDEX}: Operational status'
+              type: SNMP_AGENT
+              snmp_oid: '1.3.6.1.2.1.105.1.3.1.1.3.{#SNMPINDEX}'
+              key: 'dahua.switch.poe.supply_status[{#SNMPINDEX}]'
+              delay: 1m
+              valuemap:
+                name: 'Dahua switch PoE supply status'
+              tags:
+                - tag: Application
+                  value: PoE
+            - uuid: d4a00000000040008000000000000020
+              name: 'Dahua PoE supply {#SNMPINDEX}: Power consumption'
+              type: SNMP_AGENT
+              snmp_oid: '1.3.6.1.2.1.105.1.3.1.1.4.{#SNMPINDEX}'
+              key: 'dahua.switch.poe.consumption[{#SNMPINDEX}]'
+              delay: 1m
+              units: W
+              description: 'Measured consumption of this PSE group in watts, not per-port consumption.'
+              tags:
+                - tag: Application
+                  value: PoE
+              trigger_prototypes:
+                - uuid: d4a00000000040008000000000000021
+                  expression: 'last(/Dahua Video Camera/dahua.switch.poe.budget[{#SNMPINDEX}])>0 and min(/Dahua Video Camera/dahua.switch.poe.consumption[{#SNMPINDEX}],5m)>last(/Dahua Video Camera/dahua.switch.poe.budget[{#SNMPINDEX}])*{$DAHUA.POE.USAGE.WARN}/100'
+                  name: 'Dahua PoE supply {#SNMPINDEX}: High power budget usage'
+                  priority: WARNING
+          graph_prototypes:
+            - uuid: d4a00000000040008000000000000022
+              name: 'Dahua PoE supply {#SNMPINDEX}: Power consumption and budget'
+              graph_items:
+                - color: 199C0D
+                  item:
+                    host: 'Dahua Video Camera'
+                    key: 'dahua.switch.poe.consumption[{#SNMPINDEX}]'
+                - color: F63100
+                  item:
+                    host: 'Dahua Video Camera'
+                    key: 'dahua.switch.poe.budget[{#SNMPINDEX}]'
+      macros:
+        - macro: '{$DAHUA.CPU.WARN}'
+          value: '85'
+          description: 'Warning threshold for reported CPU percentage.'
+        - macro: '{$DAHUA.PORT.ALERT}'
+          value: '0'
+          description: 'Link-down alerts are opt-in. Override with context ifIndex, for example {$DAHUA.PORT.ALERT:"1"}=1.'
+        - macro: '{$DAHUA.POE.USAGE.WARN}'
+          value: '85'
+          description: 'Warning threshold for measured PSE consumption as a percentage of its budget.'
+      valuemaps:
+        - uuid: d4a00000000040008000000000000023
+          name: 'Dahua switch interface operational status'
+          mappings:
+            - value: '0'
+              newvalue: 'No current status'
+            - value: '1'
+              newvalue: Up
+            - value: '2'
+              newvalue: Down
+            - value: '3'
+              newvalue: Testing
+            - value: '4'
+              newvalue: Unknown
+            - value: '5'
+              newvalue: Dormant
+            - value: '6'
+              newvalue: 'Not present'
+            - value: '7'
+              newvalue: 'Lower layer down'
+        - uuid: d4a00000000040008000000000000024
+          name: 'Dahua switch interface administrative status'
+          mappings:
+            - value: '0'
+              newvalue: 'No current status'
+            - value: '1'
+              newvalue: Up
+            - value: '2'
+              newvalue: Down
+            - value: '3'
+              newvalue: Testing
+        - uuid: d4a00000000040008000000000000025
+          name: 'Dahua switch PoE admin enable'
+          mappings:
+            - value: '1'
+              newvalue: Enabled
+            - value: '2'
+              newvalue: Disabled
+        - uuid: d4a00000000040008000000000000026
+          name: 'Dahua switch PoE detection status'
+          mappings:
+            - value: '1'
+              newvalue: Disabled
+            - value: '2'
+              newvalue: Searching
+            - value: '3'
+              newvalue: 'Delivering power'
+            - value: '4'
+              newvalue: Fault
+            - value: '5'
+              newvalue: Test
+            - value: '6'
+              newvalue: 'Other fault'
+        - uuid: d4a00000000040008000000000000027
+          name: 'Dahua switch PoE priority'
+          mappings:
+            - value: '1'
+              newvalue: Critical
+            - value: '2'
+              newvalue: High
+            - value: '3'
+              newvalue: Low
+        - uuid: d4a00000000040008000000000000028
+          name: 'Dahua switch PoE class'
+          mappings:
+            - value: '1'
+              newvalue: 'Class 0'
+            - value: '2'
+              newvalue: 'Class 1'
+            - value: '3'
+              newvalue: 'Class 2'
+            - value: '4'
+              newvalue: 'Class 3'
+            - value: '5'
+              newvalue: 'Class 4'
+        - uuid: d4a00000000040008000000000000029
+          name: 'Dahua switch PoE supply status'
+          mappings:
+            - value: '1'
+              newvalue: On
+            - value: '2'
+              newvalue: Off
+            - value: '3'
+              newvalue: Faulty
+  graphs:
+    -
+      uuid: 9394abc911d04d50a68405dddb635fdd
+      name: 'CPU Usage'
+      graph_items:
+        -
+          color: 1A7C11
+          calc_fnc: ALL
+          item:
+            host: 'Dahua Video Camera'
+            key: cpuUsage.0
+    - uuid: d4a0000000004000800000000000002a
+      name: 'Dahua switch: Ethernet port status'
+      graph_items:
+        - color: 199C0D
+          item:
+            host: 'Dahua Video Camera'
+            key: dahua.switch.ports.up
+        - color: F63100
+          item:
+            host: 'Dahua Video Camera'
+            key: dahua.switch.ports.down
+        - color: '999999'
+          item:
+            host: 'Dahua Video Camera'
+            key: dahua.switch.ports.unknown

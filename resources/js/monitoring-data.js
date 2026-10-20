@@ -1,38 +1,19 @@
-export const navigation = [
-    { id: 'dashboard', label: 'Dashboard', icon: 'dashboard' },
-    { id: 'cctv', label: 'CCTV', icon: 'camera' },
-    { id: 'network', label: 'Network (ISP)', icon: 'globe' },
-    { id: 'computers', label: 'Computers', icon: 'computer' },
-    { id: 'access', label: 'Access Point', icon: 'wifi' },
-    { id: 'nas', label: 'NAS', icon: 'server' },
-    { id: 'temperature', label: 'Temperature', icon: 'temperature' },
-    { id: 'ups', label: 'UPS', icon: 'battery' },
-    { id: 'reports', label: 'Reports', icon: 'report' },
-    { id: 'settings', label: 'Settings', icon: 'settings' },
-];
-
 export const warehouses = [
     {
         id: 'krian',
         name: 'Krian Warehouse',
-        cameras: 50,
-        offline: 2,
         computers: 35,
         accessPoints: 20,
     },
     {
         id: 'sidoarjo',
         name: 'Sidoarjo Warehouse',
-        cameras: 24,
-        offline: 1,
         computers: 18,
         accessPoints: 10,
     },
     {
         id: 'surabaya',
         name: 'Surabaya Warehouse',
-        cameras: 32,
-        offline: 0,
         computers: 24,
         accessPoints: 14,
     },
@@ -52,22 +33,6 @@ const locations = [
 ];
 
 export function buildInventory(warehouse, temperatureThreshold = 35) {
-    const cameras = Array.from({ length: warehouse.cameras }, (_, index) => {
-        const number = index + 1;
-        const offline =
-            (number === 2 && warehouse.offline > 0) || (number === 19 && warehouse.offline > 1);
-
-        return {
-            id: `CCTV-${String(number).padStart(2, '0')}`,
-            location: locations[index % locations.length],
-            ip: `192.168.${warehouses.indexOf(warehouse) + 1}.${101 + index}`,
-            status: offline ? 'Offline' : 'Online',
-            recording: !offline,
-            lastSeen: offline ? '12:14:05' : `14:25:${String(30 - (index % 25)).padStart(2, '0')}`,
-            model: 'IP Camera · 4 MP',
-        };
-    });
-
     const computers = Array.from({ length: warehouse.computers }, (_, index) => ({
         id: `PC-${String(index + 1).padStart(2, '0')}`,
         location: locations[index % locations.length],
@@ -92,7 +57,7 @@ export function buildInventory(warehouse, temperatureThreshold = 35) {
     }));
 
     return {
-        cctv: cameras,
+        cctv: [],
         computers,
         access: accessPoints,
         network: [
@@ -111,15 +76,7 @@ export function buildInventory(warehouse, temperatureThreshold = 35) {
                 detail: '100 Mbps · 24 ms latency',
             },
         ],
-        nas: [
-            {
-                id: 'NAS-01',
-                location: 'IT Room',
-                ip: '192.168.1.200',
-                status: 'Online',
-                detail: '68% storage used · Backup OK',
-            },
-        ],
+        nas: [],
         temperature: [
             ...[
                 { id: 'TEMP-01', location: 'IT Room', temperature: 24 },
@@ -139,6 +96,9 @@ export function buildInventory(warehouse, temperatureThreshold = 35) {
                 ip: '192.168.1.220',
                 status: 'Online',
                 detail: '42% load · 98% battery · 42 min runtime',
+                load: 42,
+                battery: 98,
+                runtime: 42,
             },
         ],
     };
@@ -146,18 +106,6 @@ export function buildInventory(warehouse, temperatureThreshold = 35) {
 
 export function buildAlerts(warehouse) {
     return [
-        ...(warehouse.offline
-            ? [
-                  {
-                      time: '14:21',
-                      device: 'CCTV-02',
-                      category: 'CCTV',
-                      section: 'cctv',
-                      message: 'Camera offline',
-                      status: 'Critical',
-                  },
-              ]
-            : []),
         {
             time: '14:18',
             device: 'AP-07',
@@ -205,14 +153,6 @@ export function buildAlerts(warehouse) {
             section: 'access',
             message: 'High latency 160 ms',
             status: 'Warning',
-        },
-        {
-            time: '12:14',
-            device: 'CCTV-02',
-            category: 'CCTV',
-            section: 'cctv',
-            message: 'Camera connection interrupted',
-            status: warehouse.offline ? 'Critical' : 'Resolved',
         },
     ];
 }

@@ -1,0 +1,176 @@
+zabbix_export:
+  version: '7.0'
+  host_groups:
+    - uuid: 17b24bd7d5b148d29c21700d2f92f36b
+      name: 'Krian/CCTV 15.248'
+  hosts:
+    - host: 'Camera 2 15.9'
+      name: 'Evap CS 10.3'
+      templates:
+        - name: 'ICMP Ping'
+      groups:
+        - name: 'Krian/CCTV 15.248'
+      interfaces:
+        - ip: 192.168.15.9
+          interface_ref: if1
+      inventory_mode: DISABLED
+    - host: 'Camera 3 15.12'
+      name: 'CS 9.1'
+      templates:
+        - name: 'ICMP Ping'
+      groups:
+        - name: 'Krian/CCTV 15.248'
+      interfaces:
+        - ip: 192.168.15.12
+          interface_ref: if1
+      inventory_mode: DISABLED
+    - host: 'Camera 4 15.13'
+      name: 'CS 9.1 Mirror'
+      templates:
+        - name: 'ICMP Ping'
+      groups:
+        - name: 'Krian/CCTV 15.248'
+      interfaces:
+        - ip: 192.168.15.13
+          interface_ref: if1
+      inventory_mode: DISABLED
+    - host: 'Camera 7 15.10'
+      name: 'CS 9.3'
+      templates:
+        - name: 'ICMP Ping'
+      groups:
+        - name: 'Krian/CCTV 15.248'
+      interfaces:
+        - ip: 192.168.15.10
+          interface_ref: if1
+      inventory_mode: DISABLED
+    - host: 'Camera 8 15.1'
+      name: 'CS 9.3 Mirror'
+      templates:
+        - name: 'ICMP Ping'
+      groups:
+        - name: 'Krian/CCTV 15.248'
+      interfaces:
+        - ip: 192.168.15.1
+          interface_ref: if1
+      inventory_mode: DISABLED
+    - host: 'Camera 9 15.18'
+      name: 'Evap CS 9.3'
+      templates:
+        - name: 'ICMP Ping'
+      groups:
+        - name: 'Krian/CCTV 15.248'
+      interfaces:
+        - ip: 192.168.15.18
+          interface_ref: if1
+      inventory_mode: DISABLED
+    - host: 'Camera 12 15.92'
+      name: 'Underpass cs 9.1 ke 9.3'
+      templates:
+        - name: 'ICMP Ping'
+      groups:
+        - name: 'Krian/CCTV 15.248'
+      interfaces:
+        - ip: 192.168.15.92
+          interface_ref: if1
+      inventory_mode: DISABLED
+    - host: 'Camera 13 15.4'
+      name: 'CS 10.1'
+      templates:
+        - name: 'ICMP Ping'
+      groups:
+        - name: 'Krian/CCTV 15.248'
+      interfaces:
+        - ip: 192.168.15.4
+          interface_ref: if1
+      inventory_mode: DISABLED
+    - host: 'Camera 14 15.3'
+      name: 'CS 10.1 Mirror'
+      templates:
+        - name: 'ICMP Ping'
+      groups:
+        - name: 'Krian/CCTV 15.248'
+      interfaces:
+        - ip: 192.168.15.3
+          interface_ref: if1
+      inventory_mode: DISABLED
+    - host: 'Camera 16 15.14'
+      name: 'CS 9.2 Mirror'
+      templates:
+        - name: 'ICMP Ping'
+      groups:
+        - name: 'Krian/CCTV 15.248'
+      interfaces:
+        - ip: 192.168.15.14
+          interface_ref: if1
+      inventory_mode: DISABLED
+    - host: 'Camera 17 15.21'
+      name: 'CS 10.2 Mirror'
+      templates:
+        - name: 'ICMP Ping'
+      groups:
+        - name: 'Krian/CCTV 15.248'
+      interfaces:
+        - ip: 192.168.15.21
+          interface_ref: if1
+      inventory_mode: DISABLED
+    - host: 'Camera 18 15.5'
+      name: 'CS 10.2'
+      templates:
+        - name: 'ICMP Ping'
+      groups:
+        - name: 'Krian/CCTV 15.248'
+      interfaces:
+        - ip: 192.168.15.5
+          interface_ref: if1
+      inventory_mode: DISABLED
+    - host: 'Camera 19 15.11'
+      name: 'CS 9.2'
+      templates:
+        - name: 'ICMP Ping'
+      groups:
+        - name: 'Krian/CCTV 15.248'
+      interfaces:
+        - ip: 192.168.15.11
+          interface_ref: if1
+      inventory_mode: DISABLED
+    - host: 'Camera 20 15.17'
+      name: 'Evap CS 9.2'
+      templates:
+        - name: 'ICMP Ping'
+      groups:
+        - name: 'Krian/CCTV 15.248'
+      interfaces:
+        - ip: 192.168.15.17
+          interface_ref: if1
+      inventory_mode: DISABLED
+    - host: 'Camera 21 15.19'
+      name: 'CS 10.3'
+      templates:
+        - name: 'ICMP Ping'
+      groups:
+        - name: 'Krian/CCTV 15.248'
+      interfaces:
+        - ip: 192.168.15.19
+          interface_ref: if1
+      inventory_mode: DISABLED
+    - host: 'Camera 22 15.6'
+      name: 'CS 10.3 Mirror'
+      templates:
+        - name: 'ICMP Ping'
+      groups:
+        - name: 'Krian/CCTV 15.248'
+      interfaces:
+        - ip: 192.168.15.6
+          interface_ref: if1
+      inventory_mode: DISABLED
+    - host: 'Camera 23 15.16'
+      name: 'Evap CS 9.1'
+      templates:
+        - name: 'ICMP Ping'
+      groups:
+        - name: 'Krian/CCTV 15.248'
+      interfaces:
+        - ip: 192.168.15.16
+          interface_ref: if1
+      inventory_mode: DISABLED

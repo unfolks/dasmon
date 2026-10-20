@@ -1558,6 +1558,13 @@ tbody tr:hover {
     }
 }
 @media (max-width: 1100px) {
+    .device-stats {
+        flex-wrap: wrap;
+    }
+    .device-stat {
+        flex-basis: calc((100% - 20px) / 3);
+        min-width: 0;
+    }
     .sidebar {
         width: 180px;
     }

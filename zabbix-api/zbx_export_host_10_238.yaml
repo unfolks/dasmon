@@ -1,0 +1,106 @@
+zabbix_export:
+  version: '7.0'
+  host_groups:
+    - uuid: 21ae1e0cba4f4dd48eddca084e062013
+      name: 'Krian/CCTV 10.238'
+  hosts:
+    - host: 'Camera 4 10.92'
+      name: 'Camera 4 10.92'
+      templates:
+        - name: 'ICMP Ping'
+      groups:
+        - name: 'Krian/CCTV 10.238'
+      interfaces:
+        - ip: 192.168.10.92
+          interface_ref: if1
+      inventory_mode: DISABLED
+    - host: 'Camera 6 10.190'
+      name: 'Camera 6 10.190'
+      templates:
+        - name: 'ICMP Ping'
+      groups:
+        - name: 'Krian/CCTV 10.238'
+      interfaces:
+        - ip: 192.168.10.190
+          interface_ref: if1
+      inventory_mode: DISABLED
+    - host: 'Camera 10 10.177'
+      name: 'Camera 10 10.177'
+      templates:
+        - name: 'ICMP Ping'
+      groups:
+        - name: 'Krian/CCTV 10.238'
+      interfaces:
+        - ip: 192.168.10.177
+          interface_ref: if1
+      inventory_mode: DISABLED
+    - host: 'Camera 11 10.205'
+      name: 'Camera 11 10.205'
+      templates:
+        - name: 'ICMP Ping'
+      groups:
+        - name: 'Krian/CCTV 10.238'
+      interfaces:
+        - ip: 192.168.10.205
+          interface_ref: if1
+      inventory_mode: DISABLED
+    - host: 'Camera 12 10.18'
+      name: 'Camera 12 10.18'
+      templates:
+        - name: 'ICMP Ping'
+      groups:
+        - name: 'Krian/CCTV 10.238'
+      interfaces:
+        - ip: 192.168.10.18
+          interface_ref: if1
+      inventory_mode: DISABLED
+    - host: 'Camera 13 10.44'
+      name: 'Camera 13 10.44'
+      templates:
+        - name: 'ICMP Ping'
+      groups:
+        - name: 'Krian/CCTV 10.238'
+      interfaces:
+        - ip: 192.168.10.44
+          interface_ref: if1
+      inventory_mode: DISABLED
+    - host: 'Camera 14 10.207'
+      name: 'Camera 14 10.207'
+      templates:
+        - name: 'ICMP Ping'
+      groups:
+        - name: 'Krian/CCTV 10.238'
+      interfaces:
+        - ip: 192.168.10.207
+          interface_ref: if1
+      inventory_mode: DISABLED
+    - host: 'Camera 16 10.16'
+      name: 'Camera 16 10.16'
+      templates:
+        - name: 'ICMP Ping'
+      groups:
+        - name: 'Krian/CCTV 10.238'
+      interfaces:
+        - ip: 192.168.10.16
+          interface_ref: if1
+      inventory_mode: DISABLED
+    - host: 'Camera 17 10.178'
+      name: 'Camera 17 10.178'
+      templates:
+        - name: 'ICMP Ping'
+      groups:
+        - name: 'Krian/CCTV 10.238'
+      interfaces:
+        - ip: 192.168.10.178
+          interface_ref: if1
+      inventory_mode: DISABLED
+    - host: 'Camera 22 10.127'
+      name: 'Camera 22 10.127'
+      templates:
+        - name: 'ICMP Ping'
+      groups:
+        - name: 'Krian/CCTV 10.238'
+      interfaces:
+        - ip: 192.168.10.127
+          interface_ref: if1
+      inventory_mode: DISABLED

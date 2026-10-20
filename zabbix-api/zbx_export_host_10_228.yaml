@@ -1,0 +1,46 @@
+zabbix_export:
+  version: '7.0'
+  host_groups:
+    - uuid: 3d21601c66864783b5f0e4add8754213
+      name: 'Krian/CCTV 10.228'
+  hosts:
+    - host: 'Camera 1 10.195'
+      name: 'Gudang Tali 1.2'
+      templates:
+        - name: 'ICMP Ping'
+      groups:
+        - name: 'Krian/CCTV 10.228'
+      interfaces:
+        - ip: 192.168.10.195
+          interface_ref: if1
+      inventory_mode: DISABLED
+    - host: 'Camera 2 10.225'
+      name: 'Gudang Workshop lt 2.1'
+      templates:
+        - name: 'ICMP Ping'
+      groups:
+        - name: 'Krian/CCTV 10.228'
+      interfaces:
+        - ip: 192.168.10.225
+          interface_ref: if1
+      inventory_mode: DISABLED
+    - host: 'Camera 4 10.227'
+      name: 'Gudang Workshop lt 2.3'
+      templates:
+        - name: 'ICMP Ping'
+      groups:
+        - name: 'Krian/CCTV 10.228'
+      interfaces:
+        - ip: 192.168.10.227
+          interface_ref: if1
+      inventory_mode: DISABLED
+    - host: 'Camera 6 10.226'
+      name: 'Gudang Workshop lt 2.2'
+      templates:
+        - name: 'ICMP Ping'
+      groups:
+        - name: 'Krian/CCTV 10.228'
+      interfaces:
+        - ip: 192.168.10.226
+          interface_ref: if1
+      inventory_mode: DISABLED
